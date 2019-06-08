@@ -18,6 +18,7 @@
     "watch-ts": "tsc -w"
   },
   "dependencies": {
+    "@sentry/node": "^5.4.0",
     "body-parser": "^1.19.0",
     "compression": "^1.7.4",
     "dotenv": "^8.0.0",

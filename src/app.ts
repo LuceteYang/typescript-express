@@ -12,6 +12,8 @@ import path from "path";
 
 import controllers from "./controllers";
 
+import { Handlers, init } from "@sentry/node";
+
 // initialize configuration
 dotenv.config({ path: ".env" });
 
@@ -46,6 +48,11 @@ app.use(
     next(err);
   }
 );
+
+if (process.env.NODE_ENV === "production") {
+  init({ dsn: process.env.SENTRY_DSN });
+  app.use(Handlers.errorHandler());
+}
 
 // error handler
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
