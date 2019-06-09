@@ -12,6 +12,8 @@ import path from "path";
 
 import controllers from "./controllers";
 
+import { logger, stream } from "./configs/winston";
+
 import { Handlers, init } from "@sentry/node";
 
 // initialize configuration
@@ -35,7 +37,18 @@ app.use(
   express.static(path.join(__dirname, "public"), { maxAge: 31557600000 })
 );
 
-app.use(morgan("dev"));
+if (process.env.NODE_ENV === "production") {
+  app.use(
+    morgan(
+      ':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"',
+      { stream }
+    )
+  );
+  app.use(helmet());
+  app.use(hpp());
+} else {
+  app.use(morgan("dev", { stream }));
+}
 
 /**
  * API controllers.
@@ -55,19 +68,38 @@ if (process.env.NODE_ENV === "production") {
 }
 
 // error handler
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  let apiError = err;
-
-  if (!err.status) {
-    apiError = createError(err);
+app.use(
+  (
+    err: any,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    let apiError = err;
+    if (!err.status) {
+      apiError = createError(err);
+    }
+    const errObj = {
+      req: {
+        headers: req.headers,
+        query: req.query,
+        body: req.body,
+        route: req.route
+      },
+      error: {
+        message: apiError.message,
+        stack: apiError.stack,
+        status: apiError.status
+      },
+      user: req.user
+    };
+    logger.error(`${moment().format("YYYY-MM-DD HH:mm:ss")}`, errObj);
+    if (process.env.NODE_ENV === "production" && apiError.status > 499) {
+      return res.status(apiError.status).json();
+    } else {
+      return res.status(apiError.status).json({ message: apiError.message });
+    }
   }
-
-  // set locals, only providing error in development
-  res.locals.message = apiError.message;
-  res.locals.error = process.env.NODE_ENV === "development" ? apiError : {};
-
-  // render the error page
-  return res.status(apiError.status).json({ message: apiError.message });
-});
+);
 
 export default app;

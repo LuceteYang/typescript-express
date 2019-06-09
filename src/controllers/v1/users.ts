@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+import { logger } from "../../configs/winston";
 
 /**
  * GET /api/v1/hello-world
@@ -13,6 +14,7 @@ export let helloWorld = (req: Request, res: Response) => {
  * Error test API
  */
 export let error = (req: Request, res: Response, next: NextFunction) => {
+  logger.error("error test");
   return next(new Error("error test"));
 };
 
@@ -23,5 +25,3 @@ export let error = (req: Request, res: Response, next: NextFunction) => {
 export let render = (req: Request, res: Response) => {
   res.render("index");
 };
-
-
