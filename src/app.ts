@@ -16,11 +16,14 @@ import { logger, stream } from "./configs/winston";
 
 import { Handlers, init } from "@sentry/node";
 
+import { sequelize } from "./models";
 // initialize configuration
 dotenv.config({ path: ".env" });
 
 // Create Express server
 const app = express();
+// db connect
+sequelize.sync();
 
 // Express configuration
 app.set("port", process.env.PORT || 3000);
