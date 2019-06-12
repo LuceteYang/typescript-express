@@ -14,6 +14,8 @@ import controllers from "./controllers";
 
 import { logger, stream } from "./configs/winston";
 
+import jwtMiddleware from './middlewares/jwt.middleware'
+
 import { Handlers, init } from "@sentry/node";
 
 import { sequelize } from "./models";
@@ -52,6 +54,9 @@ if (process.env.NODE_ENV === "production") {
 } else {
   app.use(morgan("dev", { stream }));
 }
+
+// 컨트롤러를 타기 전에 jwt 로부터 user 를 조회
+app.use(jwtMiddleware)
 
 /**
  * API controllers.
