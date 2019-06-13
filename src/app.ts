@@ -55,6 +55,11 @@ if (process.env.NODE_ENV === "production") {
   app.use(morgan("dev", { stream }));
 }
 
+import swaggerUi from "swagger-ui-express";
+import YAML from "yamljs";
+const swaggerDocument = YAML.load(__dirname + "/configs/swagger.yaml");
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 // 컨트롤러를 타기 전에 jwt 로부터 user 를 조회
 app.use(jwtMiddleware)
 
