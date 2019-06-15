@@ -1,7 +1,7 @@
 import * as Joi from "@hapi/joi";
 import { NextFunction, Request, Response } from "express";
 import { logger } from "../../configs/winston";
-import * as userScheme from "../../schemas/users";
+import * as userScheme from "../../validations/users";
 import { User } from "../../models/User";
 import bcrypt from "bcrypt";
 import * as HttpStatus from "http-status-codes";

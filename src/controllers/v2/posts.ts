@@ -1,7 +1,7 @@
 import * as Joi from "@hapi/joi";
 import { NextFunction, Request, Response } from "express";
 import * as formidable from "formidable";
-import * as postScheme from "../../schemas/posts";
+import { postRegister } from "../../validations/posts";
 import { Post } from "../../models/Post";
 import * as HttpStatus from "http-status-codes";
 import createError from "http-errors";
@@ -41,7 +41,7 @@ export let registerPosts = (
       try {
         const result: any = Joi.validate(
           { ...fields, ...files },
-          postScheme.postRegister
+          postRegister
         );
         if (result.error !== null) {
           return res.status(400).send(result.error);
