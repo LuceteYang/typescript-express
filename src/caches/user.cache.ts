@@ -3,6 +3,7 @@ import * as redis from "redis";
 import { logger } from "../configs/winston";
 
 const client = redis.createClient();
+client.set('key', 'value!', 'EX', 10);
 client.on("error", e => {
   logger.error(`redis error : ${e}`);
 });
@@ -16,6 +17,7 @@ class UserCache {
         user.uuid,
         JSON.stringify(user.toJSON())
       ]);
+      await client.expire("users:uuid", 10)
     } catch (e) {
       // error 로깅
       logger.error(e);

@@ -1,4 +1,3 @@
-import bodyParser from "body-parser";
 import compression from "compression"; // compresses requests
 import dotenv from "dotenv";
 import express from "express";
@@ -9,6 +8,8 @@ import lusca from "lusca";
 import moment from "moment";
 import morgan from "morgan";
 import path from "path";
+import swaggerUi from "swagger-ui-express";
+import YAML from "yamljs";
 
 import controllers from "./controllers";
 
@@ -24,23 +25,24 @@ dotenv.config({ path: ".env" });
 
 // Create Express server
 const app = express();
+
 // db connect
 sequelize.sync();
+
+app.use(
+  express.static(path.join(__dirname, "public"), { maxAge: 31557600000 })
+);
 
 // Express configuration
 app.set("port", process.env.PORT || 3000);
 app.set("views", path.join(__dirname, "../views"));
 app.set("view engine", "ejs");
 app.use(compression());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 app.use(lusca.xframe("SAMEORIGIN"));
 app.use(lusca.xssProtection(true));
-
-app.use(
-  express.static(path.join(__dirname, "public"), { maxAge: 31557600000 })
-);
 
 if (process.env.NODE_ENV === "production") {
   app.use(
@@ -55,8 +57,9 @@ if (process.env.NODE_ENV === "production") {
   app.use(morgan("dev", { stream }));
 }
 
-import swaggerUi from "swagger-ui-express";
-import YAML from "yamljs";
+/**
+ * Swagger configuration
+ */
 const swaggerDocument = YAML.load(__dirname + "/configs/swagger.yaml");
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
